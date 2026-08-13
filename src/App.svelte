@@ -9,6 +9,7 @@
     WILDLIFE_SYMBOLS,
     WILDLIFE_TYPES,
     createGame,
+    touchGame,
     type Game,
     type HabitatType,
     type ScoreSection,
@@ -86,7 +87,10 @@
   }
 
   function persist() {
-    if (game) saveGame(game)
+    if (game) {
+      touchGame(game)
+      saveGame(game)
+    }
   }
 
   function setSection(section: ScoreSection) {

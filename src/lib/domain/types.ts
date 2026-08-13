@@ -1,5 +1,6 @@
 export const WILDLIFE_TYPES = ['bear', 'elk', 'salmon', 'hawk', 'fox'] as const
 export const HABITAT_TYPES = ['mountain', 'forest', 'prairie', 'wetland', 'river'] as const
+export const GAME_SCHEMA_VERSION = 2 as const
 
 export type WildlifeType = (typeof WILDLIFE_TYPES)[number]
 export type HabitatType = (typeof HABITAT_TYPES)[number]
@@ -14,12 +15,14 @@ export interface Player {
 }
 
 export interface Game {
+  schemaVersion: typeof GAME_SCHEMA_VERSION
   id: string
   players: Player[]
   stage: 'scoring' | 'results'
   activeSection: ScoreSection
   activeWildlife: WildlifeType
   activeHabitat: HabitatType
+  createdAt: string
   updatedAt: string
 }
 
@@ -69,16 +72,23 @@ export function createPlayer(name: string): Player {
   }
 }
 
-export function createGame(names: string[]): Game {
+export function createGame(names: string[], now = new Date()): Game {
+  const timestamp = now.toISOString()
   return {
+    schemaVersion: GAME_SCHEMA_VERSION,
     id: createId(),
     players: names.map(createPlayer),
     stage: 'scoring',
     activeSection: 'wildlife',
     activeWildlife: 'bear',
     activeHabitat: 'mountain',
-    updatedAt: new Date().toISOString(),
+    createdAt: timestamp,
+    updatedAt: timestamp,
   }
+}
+
+export function touchGame(game: Game, now = new Date()): void {
+  game.updatedAt = now.toISOString()
 }
 
 function createId(): string {
