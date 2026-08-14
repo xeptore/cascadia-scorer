@@ -35,11 +35,11 @@ export const WILDLIFE_LABELS: Record<WildlifeType, string> = {
 }
 
 export const WILDLIFE_SYMBOLS: Record<WildlifeType, string> = {
-  bear: '●',
-  elk: '⌃',
-  salmon: '≈',
-  hawk: '◇',
-  fox: '◆',
+  bear: '🐻',
+  elk: '🦌',
+  salmon: '🐟',
+  hawk: '🦅',
+  fox: '🦊',
 }
 
 export const HABITAT_LABELS: Record<HabitatType, string> = {
