@@ -89,11 +89,7 @@ h2 { font-size: 1.65rem; letter-spacing: -.035em; }
   padding-block: 44px;
 }
 
-.brand-mark { width: 86px; height: 68px; position: relative; margin-bottom: 30px; }
-.brand-mark span { position: absolute; bottom: 0; width: 0; height: 0; border-style: solid; }
-.brand-mark span:nth-child(1) { left: 0; border-width: 0 24px 48px; border-color: transparent transparent #567055; }
-.brand-mark span:nth-child(2) { left: 28px; border-width: 0 29px 62px; border-color: transparent transparent #314b37; }
-.brand-mark span:nth-child(3) { left: 53px; border-width: 0 17px 34px; border-color: transparent transparent #b9794c; }
+.landing > img { margin-bottom: 30px; }
 
 .landing h1 { font-size: clamp(4rem, 20vw, 6.4rem); margin-top: 6px; }
 .hero-copy { max-width: 430px; margin-top: 22px; color: var(--muted); font-size: 1.04rem; line-height: 1.62; }

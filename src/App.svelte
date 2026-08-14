@@ -190,7 +190,7 @@
 
 {#if screen === 'home'}
   <main class="landing shell">
-    <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+    <img src="/icon-72x72.png" width="72" height="72" alt="" aria-hidden="true" />
     <p class="eyebrow">Offline scorekeeper</p>
     <h1>Cascadia</h1>
     <p class="hero-copy">Add the scores from your table. We’ll handle habitat bonuses and final standings.</p>
