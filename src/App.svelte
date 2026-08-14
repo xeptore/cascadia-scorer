@@ -190,7 +190,7 @@
 
 {#if screen === 'home'}
   <main class="landing shell">
-    <img src="/icon-72x72.png" width="72" height="72" alt="" aria-hidden="true" />
+    <img src="/icon-72x72.png" width="37" height="37" alt="" aria-hidden="true" />
     <p class="eyebrow">Offline scorekeeper</p>
     <h1>Cascadia</h1>
     <p class="hero-copy">Add the scores from your table. We’ll handle habitat bonuses and final standings.</p>
@@ -291,7 +291,7 @@
   <div class:tray-open={trayOpen} class="scoring-app">
     <header class="app-header shell-wide">
       <button class="wordmark" onclick={() => (screen = 'home')} aria-label="Return to home">
-        <span aria-hidden="true">▲</span> Cascadia
+        <img src="/icon-72x72.png" width="37" height="37" alt="" aria-hidden="true" /> Cascadia
       </button>
       <button class="new-game-link" onclick={requestNewGame}>New game</button>
     </header>
