@@ -239,7 +239,7 @@
 
     <p class="local-note">
       <span aria-hidden="true">●</span>
-       Saved only on this device
+      Saved only on this device
     </p>
   </main>
 {:else if screen === 'setup'}
@@ -287,7 +287,7 @@
         onclick={addPlayer}
       >
         <span>+</span>
-         Add player
+        Add player
       </button>
     {/if}
 
@@ -381,7 +381,7 @@
           alt=""
           aria-hidden="true"
         />
-         Cascadia
+        Cascadia
       </button>
       <button
         class="new-game-link"
