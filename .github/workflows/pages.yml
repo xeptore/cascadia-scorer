@@ -36,17 +36,29 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check Svelte and TypeScript
-        run: pnpm run check
+      - name: Format source
+        run: pnpm run format
+
+      - name: Fail on formatting drift
+        run: pnpm run drift:check
 
       - name: Check formatting
         run: pnpm run format:check
 
+      - name: Check Svelte and TypeScript
+        run: pnpm run check
+
       - name: Check PWA icons
         run: pnpm run icons:check
 
+      - name: Run tests
+        run: pnpm run test
+
       - name: Run tests with coverage
         run: pnpm run test:coverage
+
+      - name: Ensure verification leaves the checkout clean
+        run: pnpm run drift:check
 
   build:
     name: Production build
@@ -74,9 +86,17 @@ jobs:
         uses: actions/configure-pages@v6.0.0
 
       - name: Build application
-        run: pnpm run build && pnpm run pwa:check
+        run: pnpm run build
         env:
           VITE_BASE: ${{ steps.pages.outputs.base_path }}
+
+      - name: Verify PWA build
+        run: pnpm run pwa:check
+        env:
+          VITE_BASE: ${{ steps.pages.outputs.base_path }}
+
+      - name: Ensure build verification leaves the checkout clean
+        run: pnpm run drift:check
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5.0.0

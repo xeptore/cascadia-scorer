@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "drift:check": "git diff --exit-code",
     "icons:check": "node scripts/verify-icons.mjs",
     "pwa:check": "node scripts/verify-pwa-build.mjs"
   },
