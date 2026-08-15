@@ -143,7 +143,7 @@ h2 { font-size: 1.65rem; letter-spacing: -.035em; }
 .category-scroll button.complete:not(.active) { background: #f0f3eb; }
 .category-scroll button b { position: absolute; top: 5px; right: 7px; color: var(--moss); font-size: .68rem; }
 .category-symbol { font-size: 1.3rem; line-height: 1; }
-.category-scroll.habitats button { flex-basis: auto; min-width: 92px; min-height: 52px; }
+.category-scroll.habitats button { flex-basis: auto; min-width: 92px; min-height: 72px; }
 
 .panel-heading { margin: 28px 2px 21px; display: flex; align-items: end; justify-content: space-between; gap: 14px; }
 .panel-heading h2 { margin-top: 3px; }

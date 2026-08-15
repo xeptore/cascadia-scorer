@@ -4,6 +4,7 @@
   import { registerSW } from 'virtual:pwa-register'
   import {
     HABITAT_LABELS,
+    HABITAT_SYMBOLS,
     HABITAT_TYPES,
     WILDLIFE_LABELS,
     WILDLIFE_SYMBOLS,
@@ -372,6 +373,7 @@
                 class:complete={isHabitatComplete(game.players, habitat)}
                 onclick={() => setHabitat(habitat)}
               >
+                <span class="category-symbol" aria-hidden="true">{HABITAT_SYMBOLS[habitat]}</span>
                 <span>{HABITAT_LABELS[habitat]}</span>
                 {#if isHabitatComplete(game.players, habitat)}<b aria-label="Complete">✓</b>{/if}
               </button>

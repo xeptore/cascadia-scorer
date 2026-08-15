@@ -50,6 +50,14 @@ export const HABITAT_LABELS: Record<HabitatType, string> = {
   river: 'River',
 }
 
+export const HABITAT_SYMBOLS: Record<HabitatType, string> = {
+  mountain: '⛰️',
+  forest: '🌲',
+  prairie: '🌾',
+  wetland: '🪷',
+  river: '🌊',
+}
+
 export function createPlayer(name: string): Player {
   return {
     id: createId(),
