@@ -54,6 +54,7 @@
   })
 
   function beginNewGame() {
+    confirmNew = false
     clearGame()
     game = null
     setupNames = ['', '']
