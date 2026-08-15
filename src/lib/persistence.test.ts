@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  GAME_SCHEMA_VERSION,
-  createGame,
-  touchGame,
-  type Game,
-  type Player,
-} from './domain/types'
+import { GAME_SCHEMA_VERSION, createGame, touchGame, type Game, type Player } from './domain/types'
 import { clearGame, GAME_STORAGE_KEY, loadGame, saveGame } from './persistence'
 
 class MemoryStorage implements Storage {
@@ -295,6 +289,12 @@ describe('game persistence', () => {
   })
 
   describe('domain timestamps', () => {
+    it('requires 2 to 4 uniquely named players', () => {
+      expect(() => createGame(['Solo'], now)).toThrow()
+      expect(() => createGame(['Ada', 'ada'], now)).toThrow()
+      expect(() => createGame(['A', 'B', 'C', 'D', 'E'], now)).toThrow()
+    })
+
     it('creates games with the current schema and matching timestamps', () => {
       const game = createGame(['Ada', 'Grace'], now)
 

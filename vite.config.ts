@@ -1,23 +1,22 @@
-import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig } from 'vitest/config'
+
+const configuredBase = process.env.VITE_BASE ?? '/'
+const base =
+  configuredBase === '' || configuredBase === '/'
+    ? '/'
+    : `/${configuredBase.replace(/^\/+|\/+$/g, '')}/`
+
+const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512] as const
 
 export default defineConfig({
+  base,
   plugins: [
     svelte(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: [
-        'icon-72x72.png',
-        'icon-96x96.png',
-        'icon-128x128.png',
-        'icon-144x144.png',
-        'icon-152x152.png',
-        'icon-192x192.png',
-        'icon-384x384.png',
-        'icon-512x512.png',
-      ],
       manifest: {
         name: 'Cascadia Scorekeeper',
         short_name: 'Cascadia Score',
@@ -25,72 +24,38 @@ export default defineConfig({
         theme_color: '#f5f1e8',
         background_color: '#f5f1e8',
         display: 'standalone',
-        start_url: '/',
-        scope: '/',
-        icons: [
-          {
-            src: '/icon-72x72.png',
-            sizes: '72x72',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-96x96.png',
-            sizes: '96x96',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-128x128.png',
-            sizes: '128x128',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-144x144.png',
-            sizes: '144x144',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-152x152.png',
-            sizes: '152x152',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-384x384.png',
-            sizes: '384x384',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: 'any',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ],
+        icons: iconSizes.map((size) => ({
+          src: `icon-${size}x${size}.png`,
+          sizes: `${size}x${size}`,
+          type: 'image/png',
+          purpose: 'any' as const,
+        })),
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
+        globIgnores: ['icon-*.png'],
         cleanupOutdatedCaches: true,
         clientsClaim: false,
         skipWaiting: false,
-        navigateFallback: '/index.html',
+        navigateFallback: 'index.html',
       },
     }),
   ],
+  test: {
+    include: ['src/**/*.test.ts'],
+    environment: 'node',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      reportsDirectory: 'coverage',
+      include: ['src/lib/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/lib/data/**'],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
+    },
+  },
 })

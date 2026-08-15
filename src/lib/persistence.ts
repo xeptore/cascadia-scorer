@@ -11,6 +11,8 @@ import {
 // Keep the original key stable: changing it would strand existing local games.
 export const GAME_STORAGE_KEY = 'cascadia-scorer:active-game'
 
+export type StorageLike = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
+
 type UnknownRecord = Record<string, unknown>
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -107,7 +109,17 @@ function migrateGame(value: unknown): Game | null {
   }
 }
 
-export function loadGame(storage: Storage = localStorage): Game | null {
+function browserStorage(): StorageLike | null {
+  if (typeof window === 'undefined') return null
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+
+export function loadGame(storage: StorageLike | null = browserStorage()): Game | null {
+  if (!storage) return null
   try {
     const raw = storage.getItem(GAME_STORAGE_KEY)
     if (!raw) return null
@@ -118,7 +130,8 @@ export function loadGame(storage: Storage = localStorage): Game | null {
   }
 }
 
-export function saveGame(game: Game, storage: Storage = localStorage): boolean {
+export function saveGame(game: Game, storage: StorageLike | null = browserStorage()): boolean {
+  if (!storage) return false
   try {
     storage.setItem(GAME_STORAGE_KEY, JSON.stringify(game))
     return true
@@ -127,7 +140,8 @@ export function saveGame(game: Game, storage: Storage = localStorage): boolean {
   }
 }
 
-export function clearGame(storage: Storage = localStorage): boolean {
+export function clearGame(storage: StorageLike | null = browserStorage()): boolean {
+  if (!storage) return false
   try {
     storage.removeItem(GAME_STORAGE_KEY)
     return true

@@ -81,11 +81,19 @@ export function createPlayer(name: string): Player {
 }
 
 export function createGame(names: string[], now = new Date()): Game {
+  const cleanedNames = names.map((name) => name.trim()).filter(Boolean)
+  if (cleanedNames.length < 2 || cleanedNames.length > 4) {
+    throw new Error('A game needs 2 to 4 players.')
+  }
+  if (new Set(cleanedNames.map((name) => name.toLocaleLowerCase())).size !== cleanedNames.length) {
+    throw new Error('Player names must be unique.')
+  }
+
   const timestamp = now.toISOString()
   return {
     schemaVersion: GAME_SCHEMA_VERSION,
     id: createId(),
-    players: names.map(createPlayer),
+    players: cleanedNames.map(createPlayer),
     stage: 'scoring',
     activeSection: 'wildlife',
     activeWildlife: 'bear',

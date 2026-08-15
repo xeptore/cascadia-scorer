@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  calculateHabitatBonuses,
-  rankPlayers,
-  scorePlayer,
-  wildlifeSubtotal,
-} from './scoring'
+import { calculateHabitatBonuses, rankPlayers, scorePlayer, wildlifeSubtotal } from './scoring'
 import { createPlayer, type Player } from './types'
 
 function playersWithCorridors(values: number[]): Player[] {
@@ -60,13 +55,13 @@ describe('habitat majority bonuses', () => {
 
   it('recalculates every bonus when a value changes', () => {
     const players = playersWithCorridors([7, 5, 6])
-    expect(players.map((player) => calculateHabitatBonuses(players, 'mountain')[player.id])).toEqual([
-      3, 0, 1,
-    ])
+    expect(
+      players.map((player) => calculateHabitatBonuses(players, 'mountain')[player.id]),
+    ).toEqual([3, 0, 1])
     players[2].habitatCorridors.mountain = 7
-    expect(players.map((player) => calculateHabitatBonuses(players, 'mountain')[player.id])).toEqual([
-      2, 0, 2,
-    ])
+    expect(
+      players.map((player) => calculateHabitatBonuses(players, 'mountain')[player.id]),
+    ).toEqual([2, 0, 2])
   })
 
   it('waits for every player before awarding a majority bonus', () => {

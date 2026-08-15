@@ -25,9 +25,13 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 26.7.0
 
       - name: Set up pnpm
         uses: pnpm/setup@v2.0.2
+        with:
+          install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -35,8 +39,14 @@ jobs:
       - name: Check Svelte and TypeScript
         run: pnpm run check
 
-      - name: Run tests
-        run: pnpm test
+      - name: Check formatting
+        run: pnpm run format:check
+
+      - name: Check PWA icons
+        run: pnpm run icons:check
+
+      - name: Run tests with coverage
+        run: pnpm run test:coverage
 
   build:
     name: Production build
@@ -48,9 +58,13 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 26.7.0
 
       - name: Set up pnpm
         uses: pnpm/setup@v2.0.2
+        with:
+          install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -60,7 +74,7 @@ jobs:
         uses: actions/configure-pages@v6.0.0
 
       - name: Build application
-        run: pnpm run build
+        run: pnpm run build && pnpm run pwa:check
         env:
           VITE_BASE: ${{ steps.pages.outputs.base_path }}
 

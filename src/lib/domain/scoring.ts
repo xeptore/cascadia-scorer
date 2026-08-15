@@ -1,10 +1,4 @@
-import {
-  HABITAT_TYPES,
-  WILDLIFE_TYPES,
-  type Game,
-  type HabitatType,
-  type Player,
-} from './types'
+import { HABITAT_TYPES, WILDLIFE_TYPES, type Game, type HabitatType, type Player } from './types'
 
 export type BonusMap = Record<string, number>
 
@@ -35,10 +29,7 @@ function emptyBonuses(players: Player[]): BonusMap {
 }
 
 /** Official base-game habitat-majority rules for 2–4 players. */
-export function calculateHabitatBonuses(
-  players: Player[],
-  habitat: HabitatType,
-): BonusMap {
+export function calculateHabitatBonuses(players: Player[], habitat: HabitatType): BonusMap {
   const bonuses = emptyBonuses(players)
   if (players.length < 2 || players.some((player) => player.habitatCorridors[habitat] === null)) {
     return bonuses
@@ -124,9 +115,7 @@ export function rankPlayers(players: Player[]): RankedScore[] {
   for (const [index, entry] of sorted.entries()) {
     const previous = sorted[index - 1]
     const shared =
-      previous &&
-      previous.total === entry.total &&
-      previous.natureTokens === entry.natureTokens
+      previous && previous.total === entry.total && previous.natureTokens === entry.natureTokens
     ranked.push({ ...entry, rank: shared ? ranked[index - 1].rank : index + 1 })
   }
   return ranked
@@ -143,7 +132,8 @@ export function isHabitatComplete(players: Player[], habitat: HabitatType) {
 export function getScoringProgress(game: Game): ScoringProgress {
   const wildlife = WILDLIFE_TYPES.filter((type) => isWildlifeComplete(game.players, type)).length
   const habitats = HABITAT_TYPES.filter((type) => isHabitatComplete(game.players, type)).length
-  const tokens = game.players.length > 0 && game.players.every((player) => player.natureTokens !== null)
+  const tokens =
+    game.players.length > 0 && game.players.every((player) => player.natureTokens !== null)
   return { wildlife, habitats, tokens, complete: wildlife + habitats + Number(tokens), total: 11 }
 }
 

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { AlertDialog } from 'bits-ui'
-  import { registerSW } from 'virtual:pwa-register'
   import {
     HABITAT_LABELS,
     HABITAT_SYMBOLS,
@@ -26,8 +25,15 @@
     scorePlayer,
   } from './lib/domain/scoring'
   import { clearGame, loadGame, saveGame } from './lib/persistence'
+  import {
+    OFFLINE_READY_NOTICE_MS,
+    registerPwaLifecycle,
+    type UpdateServiceWorker,
+  } from './lib/pwa'
 
   type AppScreen = 'home' | 'setup' | 'game'
+
+  const appIcon = `${import.meta.env.BASE_URL}icon-72x72.png`
 
   let game = $state<Game | null>(loadGame())
   let screen = $state<AppScreen>('home')
@@ -37,18 +43,14 @@
   let confirmNew = $state(false)
   let updateAvailable = $state(false)
   let offlineReady = $state(false)
-  let updateServiceWorker: ((reloadPage?: boolean) => Promise<void>) | undefined
+  let updateServiceWorker: UpdateServiceWorker = async () => {}
 
   onMount(() => {
-    updateServiceWorker = registerSW({
-      immediate: true,
+    updateServiceWorker = registerPwaLifecycle({
       onNeedRefresh: () => (updateAvailable = true),
       onOfflineReady: () => {
         offlineReady = true
-        window.setTimeout(() => (offlineReady = false), 3500)
-      },
-      onRegisterError: () => {
-        // A failed update check must never interrupt an active local game.
+        window.setTimeout(() => (offlineReady = false), OFFLINE_READY_NOTICE_MS)
       },
     })
   })
@@ -177,7 +179,7 @@
 
   async function applyUpdate() {
     persist()
-    await updateServiceWorker?.(true)
+    await updateServiceWorker(true)
   }
 </script>
 
@@ -187,33 +189,68 @@
     name="description"
     content="A fast, offline scorekeeper for the Cascadia board game."
   />
-  <meta name="theme-color" content="#f5f1e8" />
+  <meta
+    name="theme-color"
+    content="#f5f1e8"
+  />
 </svelte:head>
 
 {#if screen === 'home'}
   <main class="landing shell">
-    <img src="/icon-72x72.png" width="37" height="37" alt="" aria-hidden="true" />
+    <img
+      src={appIcon}
+      width="37"
+      height="37"
+      alt=""
+      aria-hidden="true"
+    />
     <p class="eyebrow">Offline scorekeeper</p>
     <h1>Cascadia</h1>
-    <p class="hero-copy">Add the scores from your table. We’ll handle habitat bonuses and final standings.</p>
+    <p class="hero-copy">
+      Add the scores from your table. We’ll handle habitat bonuses and final standings.
+    </p>
 
     <div class="home-actions">
       {#if game}
-        <button class="primary large" onclick={continueGame}>
+        <button
+          class="primary large"
+          onclick={continueGame}
+        >
           <span>Continue game</span>
-          <small>{game.players.length} players · {getScoringProgress(game).complete}/11 scored</small>
+          <small>
+            {game.players.length} players · {getScoringProgress(game).complete}/11 scored
+          </small>
         </button>
-        <button class="secondary" onclick={requestNewGame}>Start a new game</button>
+        <button
+          class="secondary"
+          onclick={requestNewGame}
+        >
+          Start a new game
+        </button>
       {:else}
-        <button class="primary large" onclick={beginNewGame}>New game</button>
+        <button
+          class="primary large"
+          onclick={beginNewGame}
+        >
+          New game
+        </button>
       {/if}
     </div>
 
-    <p class="local-note"><span aria-hidden="true">●</span> Saved only on this device</p>
+    <p class="local-note">
+      <span aria-hidden="true">●</span>
+       Saved only on this device
+    </p>
   </main>
 {:else if screen === 'setup'}
   <main class="setup shell">
-    <button class="back-button" aria-label="Back to home" onclick={() => (screen = 'home')}>←</button>
+    <button
+      class="back-button"
+      aria-label="Back to home"
+      onclick={() => (screen = 'home')}
+    >
+      ←
+    </button>
     <p class="eyebrow">New game</p>
     <h1>Who’s playing?</h1>
     <p class="supporting">Add 2–4 players in the order they’re sitting.</p>
@@ -235,7 +272,9 @@
                 class="remove-player"
                 aria-label={`Remove player ${index + 1}`}
                 onclick={() => removePlayer(index)}
-              >×</button>
+              >
+                ×
+              </button>
             {/if}
           </div>
         </label>
@@ -243,30 +282,47 @@
     </div>
 
     {#if setupNames.length < 4}
-      <button class="add-player" onclick={addPlayer}><span>+</span> Add player</button>
+      <button
+        class="add-player"
+        onclick={addPlayer}
+      >
+        <span>+</span>
+         Add player
+      </button>
     {/if}
 
     <button
       class="primary start-scoring"
       disabled={setupNames.filter((name) => name.trim()).length < 2}
       onclick={startScoring}
-    >Start scoring <span aria-hidden="true">→</span></button>
+    >
+      Start scoring <span aria-hidden="true">→</span>
+    </button>
   </main>
 {:else if game && game.stage === 'results'}
   <main class="results shell-wide">
     <div class="result-header">
       <p class="eyebrow">Game complete</p>
       <h1>Final scores</h1>
-      <p>{rankPlayers(game.players)[0]?.rank === rankPlayers(game.players)[1]?.rank ? 'Shared victory' : 'A winner emerges'}</p>
+      <p>
+        {rankPlayers(game.players)[0]?.rank === rankPlayers(game.players)[1]?.rank
+          ? 'Shared victory'
+          : 'A winner emerges'}
+      </p>
     </div>
 
     <div class="podium-list">
       {#each rankPlayers(game.players) as entry}
-        <button class:champion={entry.rank === 1} onclick={() => openBreakdown(entry.playerId)}>
+        <button
+          class:champion={entry.rank === 1}
+          onclick={() => openBreakdown(entry.playerId)}
+        >
           <span class="result-rank">{entry.rank}</span>
           <span class="result-name">
             <strong>{entry.player.name}</strong>
-            <small>{entry.natureTokens} Nature {entry.natureTokens === 1 ? 'Token' : 'Tokens'}</small>
+            <small>
+              {entry.natureTokens} Nature {entry.natureTokens === 1 ? 'Token' : 'Tokens'}
+            </small>
           </span>
           <strong class="result-total">{entry.total}</strong>
         </button>
@@ -274,28 +330,65 @@
         {#if detailPlayerId === entry.playerId}
           {@const breakdown = scorePlayer(entry.player, game.players)}
           <div class="result-breakdown">
-            <span>Wildlife <strong>{breakdown.wildlife}</strong></span>
-            <span>Corridors <strong>{breakdown.corridors}</strong></span>
-            <span>Habitat bonuses <strong>{breakdown.habitatBonuses}</strong></span>
-            <span>Nature Tokens <strong>{breakdown.natureTokens}</strong></span>
+            <span>
+              Wildlife <strong>{breakdown.wildlife}</strong>
+            </span>
+            <span>
+              Corridors <strong>{breakdown.corridors}</strong>
+            </span>
+            <span>
+              Habitat bonuses <strong>{breakdown.habitatBonuses}</strong>
+            </span>
+            <span>
+              Nature Tokens <strong>{breakdown.natureTokens}</strong>
+            </span>
           </div>
         {/if}
       {/each}
     </div>
 
     <div class="result-actions">
-      <button class="primary" onclick={editScores}>Edit scores</button>
-      <button class="secondary" onclick={requestNewGame}>New game</button>
+      <button
+        class="primary"
+        onclick={editScores}
+      >
+        Edit scores
+      </button>
+      <button
+        class="secondary"
+        onclick={requestNewGame}
+      >
+        New game
+      </button>
     </div>
   </main>
 {:else if game}
   {@const progress = getScoringProgress(game)}
-  <div class:tray-open={trayOpen} class="scoring-app">
+  <div
+    class:tray-open={trayOpen}
+    class="scoring-app"
+  >
     <header class="app-header shell-wide">
-      <button class="wordmark" onclick={() => (screen = 'home')} aria-label="Return to home">
-        <img src="/icon-72x72.png" width="37" height="37" alt="" aria-hidden="true" /> Cascadia
+      <button
+        class="wordmark"
+        onclick={() => (screen = 'home')}
+        aria-label="Return to home"
+      >
+        <img
+          src={appIcon}
+          width="37"
+          height="37"
+          alt=""
+          aria-hidden="true"
+        />
+         Cascadia
       </button>
-      <button class="new-game-link" onclick={requestNewGame}>New game</button>
+      <button
+        class="new-game-link"
+        onclick={requestNewGame}
+      >
+        New game
+      </button>
     </header>
 
     <main class="score-main shell-wide">
@@ -307,28 +400,51 @@
         <span class="progress-pill">{progress.complete} / 11</span>
       </div>
 
-      <nav class="section-tabs" aria-label="Scoring sections">
-        <button class:active={game.activeSection === 'wildlife'} onclick={() => setSection('wildlife')}>
+      <nav
+        class="section-tabs"
+        aria-label="Scoring sections"
+      >
+        <button
+          class:active={game.activeSection === 'wildlife'}
+          onclick={() => setSection('wildlife')}
+        >
           Wildlife <span>{progress.wildlife}/5</span>
         </button>
-        <button class:active={game.activeSection === 'habitats'} onclick={() => setSection('habitats')}>
+        <button
+          class:active={game.activeSection === 'habitats'}
+          onclick={() => setSection('habitats')}
+        >
           Habitats <span>{progress.habitats}/5</span>
         </button>
-        <button class:active={game.activeSection === 'tokens'} onclick={() => setSection('tokens')}>
+        <button
+          class:active={game.activeSection === 'tokens'}
+          onclick={() => setSection('tokens')}
+        >
           Tokens <span>{progress.tokens ? '✓' : '—'}</span>
         </button>
       </nav>
 
       {#if game.activeSection === 'wildlife'}
-        <section class="score-panel" aria-labelledby="wildlife-heading">
-          <div class="category-scroll" aria-label="Wildlife category">
+        <section
+          class="score-panel"
+          aria-labelledby="wildlife-heading"
+        >
+          <div
+            class="category-scroll"
+            aria-label="Wildlife category"
+          >
             {#each WILDLIFE_TYPES as wildlife}
               <button
                 class:active={game.activeWildlife === wildlife}
                 class:complete={isWildlifeComplete(game.players, wildlife)}
                 onclick={() => setWildlife(wildlife)}
               >
-                <span class="category-symbol" aria-hidden="true">{WILDLIFE_SYMBOLS[wildlife]}</span>
+                <span
+                  class="category-symbol"
+                  aria-hidden="true"
+                >
+                  {WILDLIFE_SYMBOLS[wildlife]}
+                </span>
                 <span>{WILDLIFE_LABELS[wildlife]}</span>
                 {#if isWildlifeComplete(game.players, wildlife)}<b aria-label="Complete">✓</b>{/if}
               </button>
@@ -366,15 +482,26 @@
         </section>
       {:else if game.activeSection === 'habitats'}
         {@const activeBonuses = calculateHabitatBonuses(game.players, game.activeHabitat)}
-        <section class="score-panel" aria-labelledby="habitat-heading">
-          <div class="category-scroll habitats" aria-label="Habitat category">
+        <section
+          class="score-panel"
+          aria-labelledby="habitat-heading"
+        >
+          <div
+            class="category-scroll habitats"
+            aria-label="Habitat category"
+          >
             {#each HABITAT_TYPES as habitat}
               <button
                 class:active={game.activeHabitat === habitat}
                 class:complete={isHabitatComplete(game.players, habitat)}
                 onclick={() => setHabitat(habitat)}
               >
-                <span class="category-symbol" aria-hidden="true">{HABITAT_SYMBOLS[habitat]}</span>
+                <span
+                  class="category-symbol"
+                  aria-hidden="true"
+                >
+                  {HABITAT_SYMBOLS[habitat]}
+                </span>
                 <span>{HABITAT_LABELS[habitat]}</span>
                 {#if isHabitatComplete(game.players, habitat)}<b aria-label="Complete">✓</b>{/if}
               </button>
@@ -389,7 +516,14 @@
             <p>Enter the largest connected group. Bonuses update automatically.</p>
           </div>
 
-          <div class="habitat-labels" aria-hidden="true"><span>Player</span><span>Group</span><span>Bonus</span></div>
+          <div
+            class="habitat-labels"
+            aria-hidden="true"
+          >
+            <span>Player</span>
+            <span>Group</span>
+            <span>Bonus</span>
+          </div>
           <div class="score-input-list habitat-list">
             {#each game.players as player}
               <label class="score-row habitat-row">
@@ -407,14 +541,24 @@
                   oninput={(event) => updateHabitat(player.id, event.currentTarget.value)}
                   onkeydown={focusNext}
                 />
-                <strong class:has-bonus={activeBonuses[player.id] > 0}>+{activeBonuses[player.id]}</strong>
+                <strong class:has-bonus={activeBonuses[player.id] > 0}>
+                  +{activeBonuses[player.id]}
+                </strong>
               </label>
             {/each}
           </div>
         </section>
       {:else}
-        <section class="score-panel tokens-panel" aria-labelledby="tokens-heading">
-          <div class="token-icon" aria-hidden="true">✦</div>
+        <section
+          class="score-panel tokens-panel"
+          aria-labelledby="tokens-heading"
+        >
+          <div
+            class="token-icon"
+            aria-hidden="true"
+          >
+            ✦
+          </div>
           <div class="panel-heading">
             <div>
               <p class="overline">One point each</p>
@@ -447,28 +591,53 @@
       {/if}
     </main>
 
-    <aside class:expanded={trayOpen} class="score-tray" aria-label="Live scores">
-      <button class="tray-summary" onclick={() => (trayOpen = !trayOpen)} aria-expanded={trayOpen}>
-        <span class="tray-handle" aria-hidden="true"></span>
+    <aside
+      class:expanded={trayOpen}
+      class="score-tray"
+      aria-label="Live scores"
+    >
+      <button
+        class="tray-summary"
+        onclick={() => (trayOpen = !trayOpen)}
+        aria-expanded={trayOpen}
+      >
+        <span
+          class="tray-handle"
+          aria-hidden="true"
+        ></span>
         <span class="live-label">Live scores</span>
         <span class="mini-scores">
           {#each game.players as player}
-            <span><small>{player.name}</small><strong>{scorePlayer(player, game.players).total}</strong></span>
+            <span>
+              <small>{player.name}</small>
+              <strong>{scorePlayer(player, game.players).total}</strong>
+            </span>
           {/each}
         </span>
-        <span class="tray-chevron" aria-hidden="true">{trayOpen ? '↓' : '↑'}</span>
+        <span
+          class="tray-chevron"
+          aria-hidden="true"
+        >
+          {trayOpen ? '↓' : '↑'}
+        </span>
       </button>
 
       {#if trayOpen}
         <div class="tray-content">
           <div class="standings-title">
-            <div><p class="overline">Live totals</p><h2>Current standings</h2></div>
+            <div>
+              <p class="overline">Live totals</p>
+              <h2>Current standings</h2>
+            </div>
             <span>{progress.complete}/11 complete</span>
           </div>
 
           <div class="standings-list">
             {#each rankPlayers(game.players) as entry}
-              <button onclick={() => openBreakdown(entry.playerId)} aria-expanded={detailPlayerId === entry.playerId}>
+              <button
+                onclick={() => openBreakdown(entry.playerId)}
+                aria-expanded={detailPlayerId === entry.playerId}
+              >
                 <span class="rank">{entry.rank}</span>
                 <span class="standing-name">{entry.player.name}</span>
                 <strong>{entry.total}</strong>
@@ -477,30 +646,63 @@
 
               {#if detailPlayerId === entry.playerId}
                 <div class="score-breakdown">
-                  <div><span>Wildlife</span><strong>{entry.wildlife}</strong></div>
+                  <div>
+                    <span>Wildlife</span>
+                    <strong>{entry.wildlife}</strong>
+                  </div>
                   {#each WILDLIFE_TYPES as wildlife}
-                    <small><span>{WILDLIFE_LABELS[wildlife]}</span><span>{entry.player.wildlifeScores[wildlife] ?? '—'}</span></small>
+                    <small>
+                      <span>{WILDLIFE_LABELS[wildlife]}</span>
+                      <span>{entry.player.wildlifeScores[wildlife] ?? '—'}</span>
+                    </small>
                   {/each}
-                  <div><span>Corridors</span><strong>{entry.corridors}</strong></div>
+                  <div>
+                    <span>Corridors</span>
+                    <strong>{entry.corridors}</strong>
+                  </div>
                   {#each HABITAT_TYPES as habitat}
-                    <small><span>{HABITAT_LABELS[habitat]}</span><span>{entry.player.habitatCorridors[habitat] ?? '—'}</span></small>
+                    <small>
+                      <span>{HABITAT_LABELS[habitat]}</span>
+                      <span>{entry.player.habitatCorridors[habitat] ?? '—'}</span>
+                    </small>
                   {/each}
-                  <div><span>Habitat bonuses</span><strong>{entry.habitatBonuses}</strong></div>
-                  <div><span>Nature Tokens</span><strong>{entry.natureTokens}</strong></div>
-                  <div class="breakdown-total"><span>Total</span><strong>{entry.total}</strong></div>
+                  <div>
+                    <span>Habitat bonuses</span>
+                    <strong>{entry.habitatBonuses}</strong>
+                  </div>
+                  <div>
+                    <span>Nature Tokens</span>
+                    <strong>{entry.natureTokens}</strong>
+                  </div>
+                  <div class="breakdown-total">
+                    <span>Total</span>
+                    <strong>{entry.total}</strong>
+                  </div>
                 </div>
               {/if}
             {/each}
           </div>
 
           <div class="progress-grid">
-            <span>Wildlife <strong>{progress.wildlife}/5</strong></span>
-            <span>Habitats <strong>{progress.habitats}/5</strong></span>
-            <span>Tokens <strong>{progress.tokens ? '✓' : '—'}</strong></span>
+            <span>
+              Wildlife <strong>{progress.wildlife}/5</strong>
+            </span>
+            <span>
+              Habitats <strong>{progress.habitats}/5</strong>
+            </span>
+            <span>
+              Tokens <strong>{progress.tokens ? '✓' : '—'}</strong>
+            </span>
           </div>
 
-          <button class="primary results-button" disabled={!isScoringComplete(game)} onclick={showResults}>
-            {isScoringComplete(game) ? 'View final results' : `${11 - progress.complete} categories remaining`}
+          <button
+            class="primary results-button"
+            disabled={!isScoringComplete(game)}
+            onclick={showResults}
+          >
+            {isScoringComplete(game)
+              ? 'View final results'
+              : `${11 - progress.complete} categories remaining`}
           </button>
         </div>
       {/if}
@@ -518,17 +720,30 @@
       </AlertDialog.Description>
       <div class="dialog-actions">
         <AlertDialog.Cancel class="secondary">Keep this game</AlertDialog.Cancel>
-        <AlertDialog.Action class="danger" onclick={beginNewGame}>Clear & start new</AlertDialog.Action>
+        <AlertDialog.Action
+          class="danger"
+          onclick={beginNewGame}
+        >
+          Clear & start new
+        </AlertDialog.Action>
       </div>
     </AlertDialog.Content>
   </AlertDialog.Portal>
 </AlertDialog.Root>
 
 {#if updateAvailable}
-  <div class="update-toast" role="status">
+  <div
+    class="update-toast"
+    role="status"
+  >
     <span>A new version is available.</span>
     <button onclick={applyUpdate}>Update</button>
   </div>
 {:else if offlineReady}
-  <div class="update-toast" role="status"><span>Ready to use offline.</span></div>
+  <div
+    class="update-toast"
+    role="status"
+  >
+    <span>Ready to use offline.</span>
+  </div>
 {/if}
