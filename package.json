@@ -19,7 +19,7 @@
     "pwa:check": "node scripts/verify-pwa-build.mjs"
   },
   "dependencies": {
-    "bits-ui": "^2.20.0"
+    "bits-ui": "^2.20.2"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
