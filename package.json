@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@12.15.0",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build && mkdir -p dist/server && cp server/index.js dist/server/index.js",
@@ -38,7 +38,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "26.11.1",
+      "version": "26.13.0",
       "onFail": "download"
     }
   }
