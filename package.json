@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@12.18.0",
+  "packageManager": "pnpm@12.21.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build && mkdir -p dist/server && cp server/index.js dist/server/index.js",
@@ -32,13 +32,13 @@
     "typescript": "^6.0.3",
     "vite": "^8.3.8",
     "vite-plugin-pwa": "^2.0.0",
-    "vitest": "^5.1.0",
+    "vitest": "^5.1.1",
     "workbox-window": "^7.4.1"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "26.13.0",
+      "version": "26.13.1",
       "onFail": "download"
     }
   }
