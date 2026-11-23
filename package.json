@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@12.21.0",
+  "packageManager": "pnpm@12.23.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build && mkdir -p dist/server && cp server/index.js dist/server/index.js",
@@ -19,7 +19,7 @@
     "pwa:check": "node scripts/verify-pwa-build.mjs"
   },
   "dependencies": {
-    "bits-ui": "^2.21.0"
+    "bits-ui": "^2.22.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
@@ -27,7 +27,7 @@
     "@vitest/coverage-v8": "^5.1.0",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.1.1",
-    "svelte": "^5.57.3",
+    "svelte": "^5.59.1",
     "svelte-check": "^4.7.8",
     "typescript": "^6.0.3",
     "vite": "^8.3.8",
