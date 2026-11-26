@@ -22,8 +22,8 @@
     "bits-ui": "^2.22.0"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^7.3.1",
-    "@types/node": "^26.6.6",
+    "@sveltejs/vite-plugin-svelte": "^7.3.2",
+    "@types/node": "^26.6.7",
     "@vitest/coverage-v8": "^5.1.0",
     "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.1.1",
